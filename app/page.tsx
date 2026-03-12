@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
+import ColorModal from "@/components/ColorModal";
 import { PANTONE_COLORS, type Category } from "@/data/pantone-colors";
 
 export default function Home() {
@@ -25,6 +26,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      {/* 전역 컬러 모달 — 페이지 내 단일 인스턴스 */}
+      <ColorModal />
       <div className="max-w-7xl mx-auto px-4 py-5 space-y-4">
         {/* 헤더 */}
         <Header />
