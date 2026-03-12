@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
-import SearchBar from "@/components/SearchBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
 import ColorModal from "@/components/ColorModal";
 import { PANTONE_COLORS, type Category } from "@/data/pantone-colors";
@@ -58,19 +57,17 @@ export default function Home() {
         {/* 헤더 */}
         <Header />
 
-        {/* 검색·연도 필터 + 카테고리 필터 (sticky) */}
-        <div className="sticky top-4 z-20 space-y-2">
-          <SearchBar
+        {/* 통합 필터 바 (sticky) */}
+        <div className="sticky top-4 z-20">
+          <FilterBar
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            counts={counts}
             search={search}
             onSearchChange={setSearch}
             year={year}
             onYearChange={setYear}
             years={COTYE_YEARS}
-          />
-          <FilterBar
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            counts={counts}
           />
         </div>
 
