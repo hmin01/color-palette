@@ -22,19 +22,9 @@ export default function ColorCard({ color, index }: Props) {
     >
       {/* 컬러 스와치 영역 */}
       <div
-        className="relative h-52 flex flex-col justify-between p-5 overflow-hidden"
+        className="h-52 flex flex-col justify-between p-5"
         style={{ backgroundColor: color.hex }}
       >
-        {/* 배경 장식 원형들 */}
-        <div
-          className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-20"
-          style={{ backgroundColor: textColor === "#ffffff" ? "#ffffff" : "#000000" }}
-        />
-        <div
-          className="absolute -bottom-10 -left-6 w-36 h-36 rounded-full opacity-10"
-          style={{ backgroundColor: textColor === "#ffffff" ? "#ffffff" : "#000000" }}
-        />
-
         {/* 상단: COTYE 배지 */}
         <div className="flex items-start justify-between">
           {color.year ? (
