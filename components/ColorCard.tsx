@@ -226,6 +226,38 @@ type Props = {
   index: number;
 };
 
+function HexCopyButton({ hex, accentColor }: { hex: string; accentColor: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    // 모달이 열리지 않도록 이벤트 전파 차단
+    e.stopPropagation();
+    navigator.clipboard.writeText(hex.toUpperCase());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="flex items-center gap-1.5 transition-all duration-200"
+      title="클릭하여 복사"
+    >
+      <div
+        className="w-4 h-4 rounded-full ring-2 ring-white shadow-sm shrink-0"
+        style={{ backgroundColor: accentColor }}
+      />
+      <span
+        className="text-xs font-mono uppercase transition-colors duration-200"
+        style={copied ? { color: accentColor } : { color: "#9ca3af" }}
+      >
+        {copied ? "복사됨!" : hex}
+      </span>
+    </button>
+  );
+}
+
 export default function ColorCard({ color, index }: Props) {
   const textColor = getTextColorForBg(color.hex);
   const isLight = textColor === "#1a1a1a";
@@ -286,15 +318,7 @@ export default function ColorCard({ color, index }: Props) {
             </h3>
 
             <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-4 h-4 rounded-full ring-2 ring-white shadow-sm"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <span className="text-xs font-mono text-gray-400 uppercase">
-                  {color.hex}
-                </span>
-              </div>
+              <HexCopyButton hex={color.hex} accentColor={color.hex} />
 
               {/* 카테고리 배지 */}
               <span
