@@ -223,7 +223,6 @@ function ModalCloseButton({
 
 type Props = {
   color: PantoneColor;
-  index: number;
 };
 
 function HexCopyButton({ hex, accentColor }: { hex: string; accentColor: string }) {
@@ -259,7 +258,7 @@ function HexCopyButton({ hex, accentColor }: { hex: string; accentColor: string 
 }
 
 // 카드 내부 - useModalContext로 직접 모달 제어
-function CardInner({ color, index }: Props) {
+function CardInner({ color }: Props) {
   const { open } = useModalContext();
   const textColor = getTextColorForBg(color.hex);
   const isLight = textColor === "#1a1a1a";
@@ -267,11 +266,7 @@ function CardInner({ color, index }: Props) {
   return (
     <article
       onClick={open}
-      className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer animate-slide-up opacity-0"
-      style={{
-        animationDelay: `${(index % 12) * 50}ms`,
-        animationFillMode: "forwards",
-      }}
+      className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
     >
       {/* 컬러 스와치 영역 */}
       <div
@@ -334,17 +329,17 @@ function CardInner({ color, index }: Props) {
 
       {/* 하단 컬러 액센트 바 */}
       <div
-        className="h-1 w-full transition-all duration-500 group-hover:h-1.5"
+        className="h-1 w-full"
         style={{ backgroundColor: color.hex }}
       />
     </article>
   );
 }
 
-export default function ColorCard({ color, index }: Props) {
+export default function ColorCard({ color }: Props) {
   return (
     <Modal>
-      <CardInner color={color} index={index} />
+      <CardInner color={color} />
       <Modal.Overlay />
       <Modal.Content>
         <PantoneColorDetail color={color} />
