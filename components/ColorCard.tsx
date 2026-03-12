@@ -267,7 +267,7 @@ function CardInner({ color, index }: Props) {
   return (
     <article
       onClick={open}
-      className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer animate-slide-up opacity-0"
+      className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer animate-slide-up opacity-0"
       style={{
         animationDelay: `${(index % 12) * 50}ms`,
         animationFillMode: "forwards",
