@@ -41,6 +41,11 @@ export default function Home() {
         {/* 컬러 카드 그리드 (인피니티 스크롤) */}
         {/* key를 activeCategory로 설정해 카테고리 변경 시 컴포넌트를 리셋 */}
         <InfiniteScrollGrid key={activeCategory} colors={filteredColors} />
+
+        {/* 푸터 */}
+        <footer className="py-10 text-center text-sm text-gray-400">
+          copyright &copy; hmin
+        </footer>
       </div>
     </main>
   );
