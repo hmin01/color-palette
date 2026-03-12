@@ -258,91 +258,94 @@ function HexCopyButton({ hex, accentColor }: { hex: string; accentColor: string 
   );
 }
 
-export default function ColorCard({ color, index }: Props) {
+// 카드 내부 - useModalContext로 직접 모달 제어
+function CardInner({ color, index }: Props) {
+  const { open } = useModalContext();
   const textColor = getTextColorForBg(color.hex);
   const isLight = textColor === "#1a1a1a";
 
   return (
-    <Modal>
-      <Modal.Trigger asChild>
-        <article
-          className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer animate-slide-up opacity-0"
-          style={{
-            animationDelay: `${(index % 12) * 50}ms`,
-            animationFillMode: "forwards",
-          }}
-        >
-          {/* 컬러 스와치 영역 */}
-          <div
-            className="h-52 flex flex-col justify-between p-5"
-            style={{ backgroundColor: color.hex }}
+    <article
+      onClick={open}
+      className="group bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer animate-slide-up opacity-0"
+      style={{
+        animationDelay: `${(index % 12) * 50}ms`,
+        animationFillMode: "forwards",
+      }}
+    >
+      {/* 컬러 스와치 영역 */}
+      <div
+        className="h-52 flex flex-col justify-between p-5"
+        style={{ backgroundColor: color.hex }}
+      >
+        {/* 상단: COTYE 배지 */}
+        <div>
+          {color.year ? (
+            <span
+              className="text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-full"
+              style={{
+                backgroundColor: isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.25)",
+                color: textColor,
+              }}
+            >
+              COTYE · {color.year}
+            </span>
+          ) : null}
+        </div>
+
+        {/* 하단: 팬톤 코드 */}
+        <div>
+          <p
+            className="font-mono text-xs font-bold tracking-wider opacity-60"
+            style={{ color: textColor }}
           >
-            {/* 상단: COTYE 배지 */}
-            <div className="flex items-start justify-between">
-              {color.year ? (
-                <span
-                  className="text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-full"
-                  style={{
-                    backgroundColor: isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.25)",
-                    color: textColor,
-                  }}
-                >
-                  COTYE · {color.year}
-                </span>
-              ) : (
-                <div />
-              )}
-            </div>
+            PANTONE
+          </p>
+          <p
+            className="font-mono text-lg font-extrabold leading-tight"
+            style={{ color: textColor }}
+          >
+            {color.code}
+          </p>
+        </div>
+      </div>
 
-            {/* 하단: 팬톤 코드 */}
-            <div>
-              <p
-                className="font-mono text-xs font-bold tracking-wider opacity-60"
-                style={{ color: textColor }}
-              >
-                PANTONE
-              </p>
-              <p
-                className="font-mono text-lg font-extrabold leading-tight"
-                style={{ color: textColor }}
-              >
-                {color.code}
-              </p>
-            </div>
-          </div>
+      {/* 컬러 정보 영역 */}
+      <div className="p-5">
+        <h3 className="text-lg font-extrabold text-gray-900 tracking-tight leading-tight">
+          {color.name}
+        </h3>
 
-          {/* 컬러 정보 영역 */}
-          <div className="p-5">
-            <h3 className="text-lg font-extrabold text-gray-900 tracking-tight leading-tight">
-              {color.name}
-            </h3>
+        <div className="flex items-center justify-between mt-3">
+          <HexCopyButton hex={color.hex} accentColor={color.hex} />
 
-            <div className="flex items-center justify-between mt-3">
-              <HexCopyButton hex={color.hex} accentColor={color.hex} />
+          {/* 카테고리 배지 */}
+          <span
+            className="text-[11px] font-bold px-3 py-1 rounded-full"
+            style={{
+              backgroundColor: `rgba(${hexToRgb(color.hex)}, 0.12)`,
+              color: color.hex,
+            }}
+          >
+            {color.category}
+          </span>
+        </div>
+      </div>
 
-              {/* 카테고리 배지 */}
-              <span
-                className="text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{
-                  backgroundColor: `rgba(${hexToRgb(color.hex)}, 0.12)`,
-                  color: color.hex,
-                }}
-              >
-                {color.category}
-              </span>
-            </div>
-          </div>
+      {/* 하단 컬러 액센트 바 */}
+      <div
+        className="h-1 w-full transition-all duration-500 group-hover:h-1.5"
+        style={{ backgroundColor: color.hex }}
+      />
+    </article>
+  );
+}
 
-          {/* 하단 컬러 액센트 바 */}
-          <div
-            className="h-1 w-full transition-all duration-500 group-hover:h-1.5"
-            style={{ backgroundColor: color.hex }}
-          />
-        </article>
-      </Modal.Trigger>
-
+export default function ColorCard({ color, index }: Props) {
+  return (
+    <Modal>
+      <CardInner color={color} index={index} />
       <Modal.Overlay />
-
       <Modal.Content>
         <PantoneColorDetail color={color} />
       </Modal.Content>
