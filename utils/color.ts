@@ -1,4 +1,61 @@
 /**
+ * RGB 값을 HEX 문자열로 변환합니다.
+ */
+function rgbToHex(r: number, g: number, b: number): string {
+  return (
+    "#" +
+    [r, g, b]
+      .map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+/**
+ * 베이스 컬러(500)를 기준으로 0–900 색상 스케일을 생성합니다.
+ * - 0–400: 흰색과 혼합 (밝은 계열)
+ * - 500: 베이스 컬러
+ * - 600–900: 검정과 혼합 (어두운 계열)
+ */
+export function generateColorScale(
+  hex: string
+): { stop: number; hex: string }[] {
+  const { r, g, b } = hexToRgbObject(hex);
+
+  // 흰색 혼합 비율 (0, 100, 200, 300, 400)
+  const lightRatios = [0.95, 0.85, 0.70, 0.50, 0.28];
+  // 검정 혼합 비율 (600, 700, 800, 900)
+  const darkRatios = [0.18, 0.38, 0.58, 0.76];
+
+  const stops = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+
+  return stops.map((stop, i) => {
+    if (stop === 500) return { stop, hex };
+
+    if (stop < 500) {
+      const ratio = lightRatios[i];
+      return {
+        stop,
+        hex: rgbToHex(
+          Math.round(r + (255 - r) * ratio),
+          Math.round(g + (255 - g) * ratio),
+          Math.round(b + (255 - b) * ratio)
+        ),
+      };
+    }
+
+    const ratio = darkRatios[i - 6];
+    return {
+      stop,
+      hex: rgbToHex(
+        Math.round(r * (1 - ratio)),
+        Math.round(g * (1 - ratio)),
+        Math.round(b * (1 - ratio))
+      ),
+    };
+  });
+}
+
+/**
  * 배경색 밝기에 따라 텍스트 색상(흰색 또는 어두운 색)을 반환합니다.
  */
 export function getTextColorForBg(hex: string): string {
