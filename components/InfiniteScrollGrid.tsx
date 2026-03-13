@@ -2,53 +2,76 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import ColorCard from "./ColorCard";
+import { getColors } from "@/app/actions/colorActions";
 import type { ColorDto } from "@/types/color";
 
 const PAGE_SIZE = 12;
 
 type Props = {
-  colors: ColorDto[];
+  category: string;
+  search: string;
+  year: number | null;
 };
 
-export default function InfiniteScrollGrid({ colors }: Props) {
-  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
+export default function InfiniteScrollGrid({ category, search, year }: Props) {
+  const [colors, setColors] = useState<ColorDto[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const loadMore = useCallback(() => {
-    if (isLoading || displayCount >= colors.length) return;
+  // 첫 페이지 초기 로드
+  useEffect(() => {
+    let cancelled = false;
     setIsLoading(true);
-    // 로딩 효과를 위한 약간의 지연
-    setTimeout(() => {
-      setDisplayCount((prev) => Math.min(prev + PAGE_SIZE, colors.length));
+    getColors({ category, search, year, page: 1, pageSize: PAGE_SIZE }).then(
+      (res) => {
+        if (cancelled) return;
+        if (res.success && res.data) {
+          setColors(res.data);
+          setTotalPages(res.meta?.totalPages ?? 1);
+          setPage(1);
+        }
+        setIsLoading(false);
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [category, search, year]);
+
+  const loadMore = useCallback(() => {
+    if (isLoading || page >= totalPages) return;
+    const nextPage = page + 1;
+    setIsLoading(true);
+    getColors({
+      category,
+      search,
+      year,
+      page: nextPage,
+      pageSize: PAGE_SIZE,
+    }).then((res) => {
+      if (res.success && res.data) {
+        setColors((prev) => [...prev, ...res.data!]);
+        setPage(nextPage);
+      }
       setIsLoading(false);
-    }, 500);
-  }, [isLoading, displayCount, colors.length]);
+    });
+  }, [isLoading, page, totalPages, category, search, year]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
+        if (entries[0].isIntersecting) loadMore();
       },
       { threshold: 0.1, rootMargin: "0px 0px 300px 0px" }
     );
-
     const el = sentinelRef.current;
     if (el) observer.observe(el);
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // 카테고리 변경 시 초기화
-  useEffect(() => {
-    setDisplayCount(PAGE_SIZE);
-  }, [colors]);
-
-  const displayed = colors.slice(0, displayCount);
-  const hasMore = displayCount < colors.length;
-
-  if (colors.length === 0) {
+  if (!isLoading && colors.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-gray-400">
         <div className="w-16 h-16 rounded-3xl bg-gray-100 flex items-center justify-center mb-4">
@@ -64,15 +87,17 @@ export default function InfiniteScrollGrid({ colors }: Props) {
             <path d="M8 12h8M12 8v8" />
           </svg>
         </div>
-        <p className="font-semibold">해당 카테고리에 컬러가 없습니다</p>
+        <p className="font-semibold">해당 조건에 맞는 컬러가 없습니다</p>
       </div>
     );
   }
 
+  const hasMore = page < totalPages;
+
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {displayed.map((color, index) => (
+        {colors.map((color) => (
           <ColorCard key={color.id} color={color} />
         ))}
       </div>
@@ -113,7 +138,7 @@ export default function InfiniteScrollGrid({ colors }: Props) {
       )}
 
       {/* 완료 메시지 */}
-      {!hasMore && displayed.length > 0 && (
+      {!hasMore && colors.length > 0 && (
         <div className="flex flex-col items-center gap-2 py-12 text-gray-400">
           <div className="flex gap-2 mb-2">
             {["#BB2649", "#F5DF4D", "#0F4C81", "#88B04B"].map((hex) => (
@@ -125,7 +150,7 @@ export default function InfiniteScrollGrid({ colors }: Props) {
             ))}
           </div>
           <p className="text-sm font-semibold">모든 팬톤 컬러를 불러왔습니다</p>
-          <p className="text-xs">총 {displayed.length}개의 컬러</p>
+          <p className="text-xs">총 {colors.length}개의 컬러</p>
         </div>
       )}
     </div>

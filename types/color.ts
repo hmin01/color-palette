@@ -62,6 +62,8 @@ export type GetColorsParams = {
   pageSize?: number;
   /** 이름·코드·헥스 통합 검색어 */
   search?: string;
+  /** 올해의 컬러 연도 필터 */
+  year?: number | null;
 };
 
 // ─── 응답 데이터 타입 (ApiResponse<T>의 T 역할) ──────────────────────────────

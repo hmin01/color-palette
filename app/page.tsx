@@ -1,53 +1,29 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
 import ColorModal from "@/components/ColorModal";
-import { PANTONE_COLORS } from "@/data/pantone-colors";
+import { getColorsOfTheYear } from "@/app/actions/colorActions";
 import type { Category } from "@/types/color";
-
-/** COTYE로 지정된 연도 목록 (오름차순) */
-const COTYE_YEARS = Array.from(
-  new Set(PANTONE_COLORS.filter((c) => c.year !== undefined).map((c) => c.year!))
-).sort((a, b) => a - b);
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [search, setSearch] = useState("");
   const [year, setYear] = useState<number | null>(null);
+  const [cotye_years, setCotye_years] = useState<number[]>([]);
 
-  const filteredColors = useMemo(() => {
-    let result =
-      activeCategory === "All"
-        ? PANTONE_COLORS
-        : PANTONE_COLORS.filter((c) => c.category === activeCategory);
-
-    if (year !== null) {
-      result = result.filter((c) => c.year === year);
-    }
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.code.toLowerCase().includes(q) ||
-          c.hex.toLowerCase().includes(q)
-      );
-    }
-
-    return result;
-  }, [activeCategory, search, year]);
-
-  /** 각 카테고리별 컬러 수 (검색·연도 필터와 무관한 전체 기준) */
-  const counts = useMemo(() => {
-    const result: Record<string, number> = { All: PANTONE_COLORS.length };
-    for (const color of PANTONE_COLORS) {
-      result[color.category] = (result[color.category] ?? 0) + 1;
-    }
-    return result;
+  // COTYE 연도 목록 초기 로드
+  useEffect(() => {
+    getColorsOfTheYear().then((res) => {
+      if (res.success && res.data) {
+        const years = Array.from(
+          new Set(res.data.map((c) => c.year).filter((y): y is number => y !== null))
+        ).sort((a, b) => a - b);
+        setCotye_years(years);
+      }
+    });
   }, []);
 
   return (
@@ -63,12 +39,11 @@ export default function Home() {
           <FilterBar
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
-            counts={counts}
             search={search}
             onSearchChange={setSearch}
             year={year}
             onYearChange={setYear}
-            years={COTYE_YEARS}
+            years={cotye_years}
           />
         </div>
 
@@ -76,7 +51,9 @@ export default function Home() {
         {/* key를 변경해 필터 조합이 바뀔 때 그리드를 리셋 */}
         <InfiniteScrollGrid
           key={`${activeCategory}-${year ?? "all"}-${search}`}
-          colors={filteredColors}
+          category={activeCategory}
+          search={search}
+          year={year}
         />
 
         {/* 푸터 */}
