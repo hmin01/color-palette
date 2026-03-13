@@ -27,9 +27,9 @@ export default function Home() {
     });
   }, []);
 
-  // 검색어 디바운스 (100ms) — API 호출 횟수 최소화
+  // 검색어 디바운스 (200ms) — API 호출 횟수 최소화
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchInput), 100);
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 200);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
