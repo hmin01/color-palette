@@ -10,7 +10,8 @@ import type { Category } from "@/types/color";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [year, setYear] = useState<number | null>(null);
   const [cotye_years, setCotye_years] = useState<number[]>([]);
 
@@ -26,6 +27,12 @@ export default function Home() {
     });
   }, []);
 
+  // 검색어 디바운스 (100ms) — API 호출 횟수 최소화
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 100);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   return (
     <main className="min-h-screen">
       {/* 전역 컬러 모달 — 페이지 내 단일 인스턴스 */}
@@ -39,8 +46,8 @@ export default function Home() {
           <FilterBar
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
-            search={search}
-            onSearchChange={setSearch}
+            search={searchInput}
+            onSearchChange={setSearchInput}
             year={year}
             onYearChange={setYear}
             years={cotye_years}
@@ -50,9 +57,9 @@ export default function Home() {
         {/* 컬러 카드 그리드 (인피니티 스크롤) */}
         {/* key를 변경해 필터 조합이 바뀔 때 그리드를 리셋 */}
         <InfiniteScrollGrid
-          key={`${activeCategory}-${year ?? "all"}-${search}`}
+          key={`${activeCategory}-${year ?? "all"}-${debouncedSearch}`}
           category={activeCategory}
-          search={search}
+          search={debouncedSearch}
           year={year}
         />
 
