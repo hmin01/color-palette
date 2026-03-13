@@ -1,11 +1,18 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getColorsOfTheYear } from "@/app/actions/colorActions";
 
-export default async function Header() {
-  const res = await getColorsOfTheYear();
-  // 최신 8개 HEX 코드만 미리보기 스와치에 표시
-  const previewHexes = (res.success && res.data ? res.data : [])
-    .slice(0, 8)
-    .map((c) => c.hex);
+export default function Header() {
+  const [previewHexes, setPreviewHexes] = useState<string[]>([]);
+
+  useEffect(() => {
+    getColorsOfTheYear().then((res) => {
+      if (res.success && res.data) {
+        setPreviewHexes(res.data.slice(0, 8).map((c) => c.hex));
+      }
+    });
+  }, []);
 
   return (
     <header className="relative overflow-hidden bg-white rounded-[2.5rem] shadow-sm px-8 py-12 md:px-14 md:py-16">
