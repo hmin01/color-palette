@@ -78,7 +78,6 @@ function ColorValueRow({ label, display, copyText, accentHex }: ColorValueRowPro
 
 function ColorScaleSwatch({ stop, hex }: { stop: number; hex: string }) {
   const [copied, setCopied] = useState(false);
-  const textColor = getTextColorForBg(hex);
   const isBase = stop === 500;
 
   const handleClick = () => {
@@ -92,17 +91,36 @@ function ColorScaleSwatch({ stop, hex }: { stop: number; hex: string }) {
       type="button"
       onClick={handleClick}
       title={`${stop} · ${hex.toUpperCase()}`}
-      className="flex-1 flex flex-col items-center gap-1 group"
+      className="flex-1 flex flex-col items-center group"
     >
-      <div
-        className="w-full h-10 rounded-lg transition-transform group-hover:scale-105 group-hover:-translate-y-0.5 shadow-sm"
-        style={{
-          backgroundColor: hex,
-          outline: isBase ? `2px solid ${hex}` : "none",
-          outlineOffset: "2px",
-        }}
-      />
-      <span className="text-[9px] font-bold text-gray-400 group-hover:text-gray-600 transition-colors">
+      {/* 캐럿 + 스와치를 같은 transform 컨테이너에 묶어 hover 시 함께 이동 */}
+      <div className="w-full flex flex-col items-center transition-transform group-hover:scale-105 group-hover:-translate-y-0.5">
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className={`mb-0.5 transition-opacity duration-150 ${isBase && !copied ? "opacity-100" : "opacity-0"}`}
+        >
+          <path
+            d="M1 1L5 5L9 1"
+            stroke={hex}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <div
+          className="w-full h-10 rounded-lg shadow-sm"
+          style={{ backgroundColor: hex }}
+        />
+      </div>
+      <span
+        className={`text-[9px] font-bold mt-1 transition-colors ${
+          isBase ? "font-extrabold" : "text-gray-400 group-hover:text-gray-600"
+        }`}
+        style={isBase && !copied ? { color: hex } : undefined}
+      >
         {copied ? "✓" : stop}
       </span>
     </button>
