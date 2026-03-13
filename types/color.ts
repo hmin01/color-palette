@@ -1,16 +1,39 @@
-import type { Category } from "@/data/pantone-colors";
+// ─── 카테고리 ─────────────────────────────────────────────────────────────────
 
-// ─── 컬러 데이터 DTO ──────────────────────────────────────────────────────────
+export type Category =
+  | "All"
+  | "Warm"
+  | "Red"
+  | "Orange"
+  | "Yellow"
+  | "Green"
+  | "Blue"
+  | "Purple"
+  | "Pink"
+  | "Neutral";
 
-/** API 계층에서 사용하는 팬톤 컬러 DTO */
-export type ColorDto = {
+export const CATEGORIES: Category[] = [
+  "All",
+  "Warm",
+  "Red",
+  "Orange",
+  "Yellow",
+  "Green",
+  "Blue",
+  "Purple",
+  "Pink",
+  "Neutral",
+];
+
+// ─── 팬톤 컬러 모델 ────────────────────────────────────────────────────────────
+
+export type PantoneColor = {
   id: string;
   code: string;
   name: string;
   hex: string;
   category: Exclude<Category, "All">;
-  /** 올해의 컬러(COTYE)로 지정된 연도. 미지정 시 null */
-  year: number | null;
+  year?: number;
 };
 
 // ─── 요청 파라미터 ─────────────────────────────────────────────────────────────
@@ -30,10 +53,10 @@ export type GetColorsParams = {
 // ─── 응답 데이터 타입 (ApiResponse<T>의 T 역할) ──────────────────────────────
 
 /** 컬러 목록 */
-export type ColorListData = ColorDto[];
+export type ColorListData = PantoneColor[];
 
 /** 컬러 단건 */
-export type ColorDetailData = ColorDto;
+export type ColorDetailData = PantoneColor;
 
 /** 카테고리 목록 */
 export type CategoryListData = string[];

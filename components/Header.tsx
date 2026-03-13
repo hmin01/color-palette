@@ -1,6 +1,9 @@
-import { COTYE_PREVIEW_COLORS } from "@/data/pantone-colors";
+import { getColorsOfTheYear } from "@/app/actions/colorActions";
 
-export default function Header() {
+export default async function Header() {
+  const result = await getColorsOfTheYear();
+  const cotyeHexes = (result.data ?? []).slice(0, 8).map((c) => c.hex);
+
   return (
     <header className="relative overflow-hidden bg-white rounded-[2.5rem] shadow-sm px-8 py-12 md:px-14 md:py-16">
       {/* 배경 블롭 장식 */}
@@ -37,7 +40,7 @@ export default function Header() {
             Colors of the Year
           </p>
           <div className="flex flex-wrap gap-2 max-w-[280px] md:justify-end">
-            {COTYE_PREVIEW_COLORS.map((hex, i) => (
+            {cotyeHexes.map((hex, i) => (
               <div
                 key={i}
                 className="w-9 h-9 rounded-2xl shadow-sm transition-transform hover:scale-110 hover:-translate-y-0.5"

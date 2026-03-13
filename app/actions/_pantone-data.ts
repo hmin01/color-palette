@@ -1,36 +1,4 @@
-export type Category =
-  | "All"
-  | "Warm"
-  | "Red"
-  | "Orange"
-  | "Yellow"
-  | "Green"
-  | "Blue"
-  | "Purple"
-  | "Pink"
-  | "Neutral";
-
-export type PantoneColor = {
-  id: string;
-  code: string;
-  name: string;
-  hex: string;
-  category: Exclude<Category, "All">;
-  year?: number;
-};
-
-export const CATEGORIES: Category[] = [
-  "All",
-  "Warm",
-  "Red",
-  "Orange",
-  "Yellow",
-  "Green",
-  "Blue",
-  "Purple",
-  "Pink",
-  "Neutral",
-];
+import type { PantoneColor } from "@/types/color";
 
 export const PANTONE_COLORS: PantoneColor[] = [
   // ─── Colors of the Year ───────────────────────────────────────────────────────
@@ -582,9 +550,3 @@ export const PANTONE_COLORS: PantoneColor[] = [
   { id: "579", code: "19-5420 TCX", name: "Midnight Green",   hex: "#205040", category: "Green"   },
   { id: "580", code: "19-5526 TCX", name: "Dark Green",       hex: "#185040", category: "Green"   },
 ];
-
-/** 올해의 컬러(COTYE) 미리보기용 헥스 코드 */
-export const COTYE_PREVIEW_COLORS = PANTONE_COLORS.filter((c) => c.year)
-  .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
-  .slice(0, 8)
-  .map((c) => c.hex);

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { PantoneColor } from "@/data/pantone-colors";
+import type { PantoneColor } from "@/types/color";
 
 type ColorModalState = {
   isOpen: boolean;

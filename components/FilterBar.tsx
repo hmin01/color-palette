@@ -1,6 +1,6 @@
 "use client";
 
-import { CATEGORIES, type Category } from "@/data/pantone-colors";
+import { CATEGORIES, type Category } from "@/types/color";
 
 const CATEGORY_COLORS: Record<Category, string> = {
   All: "#6366f1",

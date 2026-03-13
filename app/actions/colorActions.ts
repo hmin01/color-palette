@@ -1,29 +1,15 @@
 "use server";
 
-import { PANTONE_COLORS } from "@/data/pantone-colors";
+import { PANTONE_COLORS } from "./_pantone-data";
 import { successResponse, errorResponse } from "@/types/api";
 import type { ApiResponse, ApiMeta } from "@/types/api";
 import type {
-  ColorDto,
+  PantoneColor,
   ColorListData,
   ColorDetailData,
   CategoryListData,
   GetColorsParams,
 } from "@/types/color";
-
-// ─── 내부 변환 ─────────────────────────────────────────────────────────────────
-
-/** PantoneColor → ColorDto 변환 (year undefined → null) */
-function toDto(color: (typeof PANTONE_COLORS)[number]): ColorDto {
-  return {
-    id: color.id,
-    code: color.code,
-    name: color.name,
-    hex: color.hex,
-    category: color.category,
-    year: color.year ?? null,
-  };
-}
 
 // ─── Server Actions ────────────────────────────────────────────────────────────
 
@@ -36,7 +22,7 @@ export async function getColors(
 ): Promise<ApiResponse<ColorListData>> {
   const { category, page = 1, pageSize = 12, search } = params;
 
-  let filtered = [...PANTONE_COLORS];
+  let filtered: PantoneColor[] = [...PANTONE_COLORS];
 
   if (category && category !== "All") {
     filtered = filtered.filter((c) => c.category === category);
@@ -55,7 +41,7 @@ export async function getColors(
   const total = filtered.length;
   const totalPages = Math.ceil(total / pageSize);
   const offset = (page - 1) * pageSize;
-  const data = filtered.slice(offset, offset + pageSize).map(toDto);
+  const data = filtered.slice(offset, offset + pageSize);
 
   const meta: ApiMeta = { total, page, pageSize, totalPages };
   return successResponse<ColorListData>(data, meta);
@@ -73,7 +59,7 @@ export async function getColorById(
     return errorResponse("NOT_FOUND", `컬러 ID "${id}"를 찾을 수 없습니다.`);
   }
 
-  return successResponse<ColorDetailData>(toDto(color));
+  return successResponse<ColorDetailData>(color);
 }
 
 /**
@@ -91,9 +77,9 @@ export async function getCategories(): Promise<ApiResponse<CategoryListData>> {
  * 올해의 컬러(COTYE) 목록 조회
  */
 export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> {
-  const cotye = PANTONE_COLORS.filter((c) => c.year !== undefined)
-    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
-    .map(toDto);
+  const cotye = PANTONE_COLORS.filter((c) => c.year !== undefined).sort(
+    (a, b) => (b.year ?? 0) - (a.year ?? 0)
+  );
 
   return successResponse<ColorListData>(cotye);
 }

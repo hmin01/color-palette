@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { type PantoneColor } from "@/data/pantone-colors";
+import type { PantoneColor } from "@/types/color";
 import { getTextColorForBg, hexToRgb } from "@/utils/color";
 import { useColorModalStore } from "@/store/colorModalStore";
 
