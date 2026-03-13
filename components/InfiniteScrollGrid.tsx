@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import ColorCard from "./ColorCard";
-import type { PantoneColor } from "@/data/pantone-colors";
+import type { ColorDto } from "@/types/color";
 
 const PAGE_SIZE = 12;
 
 type Props = {
-  colors: PantoneColor[];
+  colors: ColorDto[];
 };
 
 export default function InfiniteScrollGrid({ colors }: Props) {

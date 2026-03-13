@@ -1,36 +1,6 @@
-export type Category =
-  | "All"
-  | "Warm"
-  | "Red"
-  | "Orange"
-  | "Yellow"
-  | "Green"
-  | "Blue"
-  | "Purple"
-  | "Pink"
-  | "Neutral";
-
-export type PantoneColor = {
-  id: string;
-  code: string;
-  name: string;
-  hex: string;
-  category: Exclude<Category, "All">;
-  year?: number;
-};
-
-export const CATEGORIES: Category[] = [
-  "All",
-  "Warm",
-  "Red",
-  "Orange",
-  "Yellow",
-  "Green",
-  "Blue",
-  "Purple",
-  "Pink",
-  "Neutral",
-];
+export type { Category, PantoneColor } from "@/types/color";
+export { CATEGORIES } from "@/types/color";
+import type { PantoneColor } from "@/types/color";
 
 export const PANTONE_COLORS: PantoneColor[] = [
   // ─── Colors of the Year ───────────────────────────────────────────────────────

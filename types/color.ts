@@ -1,4 +1,41 @@
-import type { Category } from "@/data/pantone-colors";
+// ─── 카테고리 ─────────────────────────────────────────────────────────────────
+
+export type Category =
+  | "All"
+  | "Warm"
+  | "Red"
+  | "Orange"
+  | "Yellow"
+  | "Green"
+  | "Blue"
+  | "Purple"
+  | "Pink"
+  | "Neutral";
+
+export const CATEGORIES: Category[] = [
+  "All",
+  "Warm",
+  "Red",
+  "Orange",
+  "Yellow",
+  "Green",
+  "Blue",
+  "Purple",
+  "Pink",
+  "Neutral",
+];
+
+// ─── 정적 데이터 타입 (data/ 레이어 전용) ────────────────────────────────────
+
+/** 정적 데이터 파일(data/pantone-colors.ts) 및 시딩 스크립트에서 사용하는 원본 타입 */
+export type PantoneColor = {
+  id: string;
+  code: string;
+  name: string;
+  hex: string;
+  category: Exclude<Category, "All">;
+  year?: number;
+};
 
 // ─── 컬러 데이터 DTO ──────────────────────────────────────────────────────────
 

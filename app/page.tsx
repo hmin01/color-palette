@@ -5,7 +5,8 @@ import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
 import ColorModal from "@/components/ColorModal";
-import { PANTONE_COLORS, type Category } from "@/data/pantone-colors";
+import { PANTONE_COLORS } from "@/data/pantone-colors";
+import type { Category } from "@/types/color";
 
 /** COTYE로 지정된 연도 목록 (오름차순) */
 const COTYE_YEARS = Array.from(
