@@ -64,6 +64,7 @@ export default function FilterBar({
           />
           {search && (
             <button
+              type="button"
               onClick={() => onSearchChange("")}
               className="text-gray-300 hover:text-gray-500 transition-colors shrink-0"
               aria-label="검색어 초기화"
@@ -135,6 +136,7 @@ export default function FilterBar({
           return (
             <button
               key={cat}
+              type="button"
               onClick={() => onCategoryChange(cat)}
               className={[
                 "flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 shrink-0",
