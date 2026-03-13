@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { PantoneColor } from "@/types/color";
+import type { ColorDto } from "@/types/color";
 import { getTextColorForBg, hexToRgb } from "@/utils/color";
 import { useColorModalStore } from "@/store/colorModalStore";
 
@@ -42,7 +42,7 @@ function HexCopyButton({ hex, accentColor }: { hex: string; accentColor: string 
 // ─── 카드 ─────────────────────────────────────────────────────────────────────
 
 type Props = {
-  color: PantoneColor;
+  color: ColorDto;
 };
 
 export default function ColorCard({ color }: Props) {

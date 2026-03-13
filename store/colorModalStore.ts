@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import type { PantoneColor } from "@/types/color";
+import type { ColorDto } from "@/types/color";
 
 type ColorModalState = {
   isOpen: boolean;
-  selectedColor: PantoneColor | null;
-  open: (color: PantoneColor) => void;
+  selectedColor: ColorDto | null;
+  open: (color: ColorDto) => void;
   close: () => void;
 };
 

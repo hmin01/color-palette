@@ -9,6 +9,7 @@ import {
   hexToRgbObject,
   hexToHsl,
   hexToHsb,
+  generateColorScale,
 } from "@/utils/color";
 
 // ─── 색상 값 행 ───────────────────────────────────────────────────────────────
@@ -73,6 +74,59 @@ function ColorValueRow({ label, display, copyText, accentHex }: ColorValueRowPro
   );
 }
 
+// ─── 색상 스케일 스와치 ───────────────────────────────────────────────────────
+
+function ColorScaleSwatch({ stop, hex }: { stop: number; hex: string }) {
+  const [copied, setCopied] = useState(false);
+  const isBase = stop === 500;
+
+  const handleClick = () => {
+    navigator.clipboard.writeText(hex.toUpperCase());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      title={`${stop} · ${hex.toUpperCase()}`}
+      className="flex-1 flex flex-col items-center group"
+    >
+      {/* 캐럿 + 스와치를 같은 transform 컨테이너에 묶어 hover 시 함께 이동 */}
+      <div className="w-full flex flex-col items-center transition-transform group-hover:scale-105 group-hover:-translate-y-0.5">
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className={`mb-0.5 transition-opacity duration-150 ${isBase && !copied ? "opacity-100" : "opacity-0"}`}
+        >
+          <path
+            d="M1 1L5 5L9 1"
+            stroke={hex}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <div
+          className="w-full h-10 rounded-lg shadow-sm"
+          style={{ backgroundColor: hex }}
+        />
+      </div>
+      <span
+        className={`text-[9px] font-bold mt-1 transition-colors ${
+          isBase ? "font-extrabold" : "text-gray-400 group-hover:text-gray-600"
+        }`}
+        style={isBase && !copied ? { color: hex } : undefined}
+      >
+        {copied ? "✓" : stop}
+      </span>
+    </button>
+  );
+}
+
 // ─── 전역 컬러 모달 ───────────────────────────────────────────────────────────
 
 export default function ColorModal() {
@@ -112,6 +166,8 @@ export default function ColorModal() {
   const rgb = hexToRgbObject(color.hex);
   const hsl = hexToHsl(color.hex);
   const hsb = hexToHsb(color.hex);
+
+  const colorScale = generateColorScale(color.hex);
 
   const colorValues = [
     {
@@ -239,6 +295,18 @@ export default function ColorModal() {
                   {color.year}
                 </span>
               )}
+            </div>
+
+            {/* 색상 스케일 (0–900) */}
+            <div className="mt-5">
+              <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400 mb-2.5">
+                색상 스케일
+              </p>
+              <div className="flex gap-1">
+                {colorScale.map(({ stop, hex }) => (
+                  <ColorScaleSwatch key={stop} stop={stop} hex={hex} />
+                ))}
+              </div>
             </div>
 
             {/* 색상 값 테이블 */}

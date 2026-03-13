@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Next.js Dev",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "export PATH=/Users/hmin/.nvm/versions/node/v20.19.5/bin:$PATH && pnpm run dev"],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}
