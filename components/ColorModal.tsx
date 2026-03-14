@@ -16,7 +16,7 @@ import {
 } from "@/utils/color";
 import type { ColorDto } from "@/types/color";
 
-type Tab = "scale" | "values" | "similar";
+type Tab = "values" | "scale";
 
 // ─── 색상 값 행 ───────────────────────────────────────────────────────────────
 
@@ -280,7 +280,6 @@ export default function ColorModal() {
   const TABS: { id: Tab; label: string }[] = [
     { id: "values", label: "색상값" },
     { id: "scale", label: "스케일" },
-    { id: "similar", label: "유사색상" },
   ];
 
   return createPortal(
@@ -389,21 +388,6 @@ export default function ColorModal() {
           {/* ── 탭 콘텐츠 (최소 높이 고정 → 탭 전환 시 모달 크기 유지) ── */}
           <div className="px-5 pb-5 min-h-[220px]">
 
-            {/* 스케일 탭 */}
-            <div className={activeTab !== "scale" ? "hidden" : ""}>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400">
-                  0 — 900
-                </span>
-                <CopyScaleButton colorScale={colorScale} />
-              </div>
-              <div className="flex gap-1">
-                {colorScale.map(({ stop, hex }) => (
-                  <ColorScaleSwatch key={stop} stop={stop} hex={hex} />
-                ))}
-              </div>
-            </div>
-
             {/* 색상값 탭 */}
             <div className={activeTab !== "values" ? "hidden" : ""}>
               {/* WCAG 대비율 */}
@@ -425,8 +409,25 @@ export default function ColorModal() {
               </div>
             </div>
 
-            {/* 유사색상 탭 — display:none이어도 마운트 유지 → 백그라운드 프리패치 */}
-            <div className={activeTab !== "similar" ? "hidden" : ""}>
+            {/* 스케일 + 유사색상 탭 */}
+            <div className={activeTab !== "scale" ? "hidden" : ""}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400">
+                  0 — 900
+                </span>
+                <CopyScaleButton colorScale={colorScale} />
+              </div>
+              <div className="flex gap-1 mb-5">
+                {colorScale.map(({ stop, hex }) => (
+                  <ColorScaleSwatch key={stop} stop={stop} hex={hex} />
+                ))}
+              </div>
+              {/* 구분선 */}
+              <div className="h-px bg-gray-100 mb-4" />
+              {/* 유사색상 — 마운트 유지 → 백그라운드 프리패치 */}
+              <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400 mb-3">
+                유사색상
+              </p>
               <SimilarTab hex={color.hex} excludeId={color.id} />
             </div>
 
