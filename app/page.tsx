@@ -1,12 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
 import ColorModal from "@/components/ColorModal";
-import { getColorsOfTheYear } from "@/app/actions/colorActions";
+import PaletteTray from "@/components/PaletteTray";
+import { getColorsOfTheYear, getColorById } from "@/app/actions/colorActions";
+import { usePaletteStore } from "@/store/paletteStore";
 import type { Category } from "@/types/color";
+
+// ─── 팔레트 URL 동기화 (Suspense 필요) ───────────────────────────────────────
+
+function PaletteUrlSync() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { colors, add } = usePaletteStore();
+
+  // URL ?palette=id1,id2,...에서 초기 팔레트 복원
+  useEffect(() => {
+    const param = searchParams.get("palette");
+    if (!param || colors.length > 0) return;
+
+    const ids = param.split(",").filter(Boolean);
+    ids.forEach((id) => {
+      getColorById(id).then((res) => {
+        if (res.success && res.data) add(res.data);
+      });
+    });
+    // 초기 로드 시 1회만 실행
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 팔레트 변경 시 URL 업데이트
+  useEffect(() => {
+    const ids = colors.map((c) => c.id).join(",");
+    const newUrl = ids ? `/?palette=${ids}` : "/";
+    router.replace(newUrl, { scroll: false });
+  }, [colors, router]);
+
+  return null;
+}
+
+// ─── 홈 페이지 ────────────────────────────────────────────────────────────────
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
@@ -35,6 +72,11 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
+      {/* 팔레트 URL 동기화 — useSearchParams는 Suspense 경계 필요 */}
+      <Suspense fallback={null}>
+        <PaletteUrlSync />
+      </Suspense>
+
       <div className="max-w-7xl mx-auto px-4 py-5 space-y-4">
         <Header />
 
@@ -65,7 +107,10 @@ export default function Home() {
           copyright &copy; hmin
         </footer>
       </div>
+
+      {/* 전역 컴포넌트 */}
       <ColorModal />
+      <PaletteTray />
     </main>
   );
 }
