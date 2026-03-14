@@ -11,6 +11,8 @@ import {
   hexToHsl,
   hexToHsb,
   generateColorScale,
+  getContrastRatio,
+  getWcagGrade,
 } from "@/utils/color";
 import type { ColorDto } from "@/types/color";
 
@@ -72,6 +74,35 @@ function ColorValueRow({ label, display, copyText, accentHex }: ColorValueRowPro
           </svg>
         )}
       </button>
+    </div>
+  );
+}
+
+// ─── WCAG 대비율 뱃지 ─────────────────────────────────────────────────────────
+
+type ContrastBadgeProps = {
+  label: string;        // "vs ⬜" or "vs ⬛"
+  ratio: number;
+  grade: "AAA" | "AA" | "fail";
+};
+
+function ContrastBadge({ label, ratio, grade }: ContrastBadgeProps) {
+  // 등급별 뱃지 스타일
+  const badgeStyle: Record<"AAA" | "AA" | "fail", string> = {
+    AAA: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    AA: "bg-blue-50 text-blue-700 ring-blue-200",
+    fail: "bg-gray-50 text-gray-400 ring-gray-200",
+  };
+
+  return (
+    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ring-1 ${badgeStyle[grade]}`}>
+      <span className="text-[10px] font-bold">{label}</span>
+      <span className="font-mono text-[10px] font-extrabold">
+        {ratio.toFixed(1)}:1
+      </span>
+      <span className={`text-[9px] font-extrabold tracking-wider ${grade === "fail" ? "opacity-60" : ""}`}>
+        {grade === "fail" ? "FAIL" : grade}
+      </span>
     </div>
   );
 }
@@ -271,6 +302,12 @@ export default function ColorModal() {
 
   const colorScale = generateColorScale(color.hex);
 
+  // WCAG 대비율 계산 (흰/검 배경 기준)
+  const contrastWhite = getContrastRatio(color.hex, "#ffffff");
+  const contrastBlack = getContrastRatio(color.hex, "#000000");
+  const gradeWhite = getWcagGrade(contrastWhite);
+  const gradeBlack = getWcagGrade(contrastBlack);
+
   const colorValues = [
     {
       label: "HEX",
@@ -411,6 +448,25 @@ export default function ColorModal() {
                 {colorScale.map(({ stop, hex }) => (
                   <ColorScaleSwatch key={stop} stop={stop} hex={hex} />
                 ))}
+              </div>
+            </div>
+
+            {/* WCAG 접근성 대비율 */}
+            <div className="mt-5">
+              <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400 mb-2.5">
+                접근성 대비율
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                <ContrastBadge
+                  label="vs ⬜"
+                  ratio={contrastWhite}
+                  grade={gradeWhite}
+                />
+                <ContrastBadge
+                  label="vs ⬛"
+                  ratio={contrastBlack}
+                  grade={gradeBlack}
+                />
               </div>
             </div>
 

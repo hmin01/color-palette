@@ -116,6 +116,47 @@ export function hexToHsl(hex: string): { h: number; s: number; l: number } {
 }
 
 /**
+ * WCAG 2.1 기준 단일 채널 상대 휘도 변환 (sRGB linearization)
+ */
+function toLinear(channel: number): number {
+  const c = channel / 255;
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/**
+ * WCAG 2.1 기준 상대 휘도(relative luminance)를 계산합니다.
+ * 반환값: 0(검정) ~ 1(흰색)
+ */
+export function getRelativeLuminance(hex: string): number {
+  const { r, g, b } = hexToRgbObject(hex);
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/**
+ * WCAG 2.1 기준 두 색상의 대비율을 계산합니다.
+ * 반환값: 1(동일) ~ 21(흑백 최대)
+ */
+export function getContrastRatio(hex1: string, hex2: string): number {
+  const l1 = getRelativeLuminance(hex1);
+  const l2 = getRelativeLuminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/**
+ * WCAG 등급을 반환합니다.
+ * - AAA: 대비율 7:1 이상 (일반 텍스트 최상위 등급)
+ * - AA: 대비율 4.5:1 이상 (일반 텍스트 최소 등급)
+ * - fail: 기준 미달
+ */
+export function getWcagGrade(ratio: number): "AAA" | "AA" | "fail" {
+  if (ratio >= 7) return "AAA";
+  if (ratio >= 4.5) return "AA";
+  return "fail";
+}
+
+/**
  * 두 헥스 색상 사이의 RGB 유클리드 거리를 계산합니다.
  * 유사 색상 검색에 사용됩니다.
  */
