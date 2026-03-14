@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getColorsOfTheYear } from "@/app/actions/colorActions";
 
 export default function Header() {
@@ -47,9 +48,29 @@ export default function Header() {
 
         {/* 우측 COTYE 스와치 섹션 */}
         <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
-          <p className="text-xs font-bold tracking-widest uppercase text-gray-400">
-            Colors of the Year
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-xs font-bold tracking-widest uppercase text-gray-400">
+              Colors of the Year
+            </p>
+            <Link
+              href="/timeline"
+              className="text-[10px] font-bold text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1"
+            >
+              전체 보기
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
           <div className="flex flex-wrap gap-2 max-w-[280px] md:justify-end">
             {previewHexes.map((hex, i) => (
               <div
