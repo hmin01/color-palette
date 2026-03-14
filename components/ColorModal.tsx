@@ -229,7 +229,7 @@ export default function ColorModal() {
   const close = useColorModalStore((s) => s.close);
 
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>("scale");
+  const [activeTab, setActiveTab] = useState<Tab>("values");
   const prevColorId = useRef<string | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
@@ -237,7 +237,7 @@ export default function ColorModal() {
   // 색상이 바뀌면 스케일 탭으로 초기화
   useEffect(() => {
     if (selectedColor && selectedColor.id !== prevColorId.current) {
-      setActiveTab("scale");
+      setActiveTab("values");
       prevColorId.current = selectedColor.id;
     }
   }, [selectedColor]);
@@ -278,8 +278,8 @@ export default function ColorModal() {
   ];
 
   const TABS: { id: Tab; label: string }[] = [
-    { id: "scale", label: "스케일" },
     { id: "values", label: "색상값" },
+    { id: "scale", label: "스케일" },
     { id: "similar", label: "유사색상" },
   ];
 
