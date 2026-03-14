@@ -23,6 +23,7 @@ type Props = {
   year: number | null;
   onYearChange: (year: number | null) => void;
   years: number[];
+  onImageMatcherOpen: () => void;
 };
 
 export default function FilterBar({
@@ -33,6 +34,7 @@ export default function FilterBar({
   year,
   onYearChange,
   years,
+  onImageMatcherOpen,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm px-4 py-3 space-y-3">
@@ -81,6 +83,21 @@ export default function FilterBar({
             </button>
           )}
         </div>
+
+        {/* 이미지 색상 매처 버튼 */}
+        <button
+          type="button"
+          onClick={onImageMatcherOpen}
+          title="이미지에서 팬톤 컬러 찾기"
+          className="shrink-0 w-10 h-10 flex items-center justify-center bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+          aria-label="이미지 색상 매처 열기"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="M21 15l-5-5L5 21" />
+          </svg>
+        </button>
 
         {/* 연도 필터 */}
         <div className="relative shrink-0">

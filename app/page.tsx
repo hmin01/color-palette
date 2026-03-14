@@ -7,6 +7,7 @@ import FilterBar from "@/components/FilterBar";
 import InfiniteScrollGrid from "@/components/InfiniteScrollGrid";
 import ColorModal from "@/components/ColorModal";
 import PaletteTray from "@/components/PaletteTray";
+import ImageMatcher from "@/components/ImageMatcher";
 import { getColorsOfTheYear, getColorById } from "@/app/actions/colorActions";
 import { usePaletteStore } from "@/store/paletteStore";
 import type { Category } from "@/types/color";
@@ -51,6 +52,7 @@ export default function Home() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [year, setYear] = useState<number | null>(null);
   const [cotye_years, setCotye_years] = useState<number[]>([]);
+  const [imageMatcherOpen, setImageMatcherOpen] = useState(false);
 
   // COTYE 연도 목록 초기 로드
   useEffect(() => {
@@ -90,6 +92,7 @@ export default function Home() {
             year={year}
             onYearChange={setYear}
             years={cotye_years}
+            onImageMatcherOpen={() => setImageMatcherOpen(true)}
           />
         </div>
 
@@ -111,6 +114,9 @@ export default function Home() {
       {/* 전역 컴포넌트 */}
       <ColorModal />
       <PaletteTray />
+      {imageMatcherOpen && (
+        <ImageMatcher onClose={() => setImageMatcherOpen(false)} />
+      )}
     </main>
   );
 }

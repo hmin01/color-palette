@@ -181,3 +181,43 @@ export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> 
 
   return successResponse<ColorListData>(data as ColorDto[]);
 }
+
+/**
+ * 주어진 HEX 색상과 RGB 거리가 가장 가까운 팬톤 컬러 1개 반환
+ * 이미지 색상 매처에서 추출된 대표색 → 팬톤 매칭에 사용
+ */
+export async function findClosestColor(
+  hex: string
+): Promise<ApiResponse<ColorDetailData>> {
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[findClosestColor]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
+
+  const { data, error } = await supabase
+    .from("pantone_colors")
+    .select("*");
+
+  if (error) {
+    return errorResponse("DB_ERROR", error.message);
+  }
+
+  // RGB 거리 최솟값 색상 1개 반환
+  const closest = (data as ColorDto[]).reduce<{ color: ColorDto | null; dist: number }>(
+    (acc, color) => {
+      const dist = getRgbDistance(hex, color.hex);
+      return dist < acc.dist ? { color, dist } : acc;
+    },
+    { color: null, dist: Infinity }
+  );
+
+  if (!closest.color) {
+    return errorResponse("NOT_FOUND", "매칭되는 컬러를 찾을 수 없습니다.");
+  }
+
+  return successResponse<ColorDetailData>(closest.color);
+}
