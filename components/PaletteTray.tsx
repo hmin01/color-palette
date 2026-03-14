@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePaletteStore } from "@/store/paletteStore";
 import type { ColorDto } from "@/types/color";
 
@@ -34,6 +34,19 @@ export default function PaletteTray() {
   const { colors, remove, clear } = usePaletteStore();
   const [exportOpen, setExportOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    if (!exportOpen) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [exportOpen]);
 
   const handleExport = (format: "css" | "tailwind" | "json") => {
     let text = "";
@@ -55,8 +68,8 @@ export default function PaletteTray() {
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-5 px-4 pointer-events-none">
       <div className="pointer-events-auto bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-3 animate-slide-up border border-white/10 max-w-2xl w-full">
 
-        {/* 색상 원형 목록 */}
-        <div className="flex items-center gap-2 flex-1 overflow-x-auto">
+        {/* 색상 원형 목록 — padding으로 hover scale 클리핑 방지 */}
+        <div className="flex items-center gap-2 flex-1 overflow-x-auto px-1 py-1">
           {colors.map((color) => (
             <button
               key={color.id}
@@ -73,7 +86,7 @@ export default function PaletteTray() {
             </button>
           ))}
           <span className="text-white/30 text-xs font-bold shrink-0 ml-1">
-            {colors.length}/7
+            {colors.length}개 선택
           </span>
         </div>
 
@@ -84,18 +97,17 @@ export default function PaletteTray() {
           </span>
         )}
 
-        {/* 전체 지우기 */}
+        {/* 전체 선택 해제 */}
         <button
           type="button"
           onClick={clear}
           className="text-white/40 hover:text-white/80 text-xs font-bold transition-colors shrink-0"
-          title="전체 지우기"
         >
-          지우기
+          전체 해제
         </button>
 
         {/* 내보내기 드롭다운 */}
-        <div className="relative shrink-0">
+        <div ref={dropdownRef} className="relative shrink-0">
           <button
             type="button"
             onClick={() => setExportOpen((v) => !v)}
@@ -108,22 +120,21 @@ export default function PaletteTray() {
           </button>
 
           {exportOpen && (
-            <div className="absolute bottom-full mb-2 right-0 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden w-44">
+            <div className="absolute bottom-full mb-2 right-0 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden w-36">
               {(
                 [
-                  { id: "css", label: "CSS 변수", desc: ":root { --color-1: #hex }" },
-                  { id: "tailwind", label: "Tailwind", desc: '{ "color-1": "#hex" }' },
-                  { id: "json", label: "JSON", desc: "[{ name, hex, code }]" },
+                  { id: "css", label: "CSS 변수" },
+                  { id: "tailwind", label: "Tailwind" },
+                  { id: "json", label: "JSON" },
                 ] as const
               ).map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
                   onClick={() => handleExport(opt.id)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                  className="w-full text-left px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-900 hover:text-white transition-all duration-150 border-b border-gray-100 last:border-0"
                 >
-                  <p className="text-sm font-extrabold text-gray-800">{opt.label}</p>
-                  <p className="text-[10px] text-gray-400 font-mono mt-0.5">{opt.desc}</p>
+                  {opt.label}
                 </button>
               ))}
             </div>
