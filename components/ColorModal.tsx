@@ -74,6 +74,35 @@ function ColorValueRow({ label, display, copyText, accentHex }: ColorValueRowPro
   );
 }
 
+// ─── 색상 스케일 전체 복사 버튼 ──────────────────────────────────────────────
+
+type CopyScaleButtonProps = {
+  colorScale: { stop: number; hex: string }[];
+};
+
+function CopyScaleButton({ colorScale }: CopyScaleButtonProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const obj = Object.fromEntries(
+      colorScale.map(({ stop, hex }) => [String(stop), hex.toUpperCase()])
+    );
+    navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all duration-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+    >
+      {copied ? "✓ 복사됨" : "전체 복사"}
+    </button>
+  );
+}
+
 // ─── 색상 스케일 스와치 ───────────────────────────────────────────────────────
 
 function ColorScaleSwatch({ stop, hex }: { stop: number; hex: string }) {
@@ -299,9 +328,12 @@ export default function ColorModal() {
 
             {/* 색상 스케일 (0–900) */}
             <div className="mt-5">
-              <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400 mb-2.5">
-                색상 스케일
-              </p>
+              <div className="flex items-center justify-between mb-2.5">
+                <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400">
+                  색상 스케일
+                </p>
+                <CopyScaleButton colorScale={colorScale} />
+              </div>
               <div className="flex gap-1">
                 {colorScale.map(({ stop, hex }) => (
                   <ColorScaleSwatch key={stop} stop={stop} hex={hex} />
