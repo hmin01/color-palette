@@ -95,7 +95,7 @@ export default function ColorCard({ color }: Props) {
             className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
               inPalette
                 ? "opacity-100 scale-100"
-                : "opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100"
+                : "opacity-50 hover:opacity-100 scale-100"
             }`}
             style={{
               backgroundColor: isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.25)",
