@@ -116,6 +116,18 @@ export function hexToHsl(hex: string): { h: number; s: number; l: number } {
 }
 
 /**
+ * 두 헥스 색상 사이의 RGB 유클리드 거리를 계산합니다.
+ * 유사 색상 검색에 사용됩니다.
+ */
+export function getRgbDistance(hex1: string, hex2: string): number {
+  const c1 = hexToRgbObject(hex1);
+  const c2 = hexToRgbObject(hex2);
+  return Math.sqrt(
+    (c1.r - c2.r) ** 2 + (c1.g - c2.g) ** 2 + (c1.b - c2.b) ** 2
+  );
+}
+
+/**
  * 헥스 색상을 HSB(HSV) 객체로 변환합니다.
  */
 export function hexToHsb(hex: string): { h: number; s: number; b: number } {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useColorModalStore } from "@/store/colorModalStore";
+import { getSimilarColors } from "@/app/actions/colorActions";
 import {
   getTextColorForBg,
   hexToRgb,
@@ -11,6 +12,7 @@ import {
   hexToHsb,
   generateColorScale,
 } from "@/utils/color";
+import type { ColorDto } from "@/types/color";
 
 // ─── 색상 값 행 ───────────────────────────────────────────────────────────────
 
@@ -70,6 +72,77 @@ function ColorValueRow({ label, display, copyText, accentHex }: ColorValueRowPro
           </svg>
         )}
       </button>
+    </div>
+  );
+}
+
+// ─── 유사 색상 섹션 ───────────────────────────────────────────────────────────
+
+type SimilarColorsSectionProps = {
+  hex: string;
+  excludeId: string;
+};
+
+function SimilarColorsSection({ hex, excludeId }: SimilarColorsSectionProps) {
+  const [similar, setSimilar] = useState<ColorDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const open = useColorModalStore((s) => s.open);
+
+  // hex 또는 excludeId 변경 시 유사 색상 재조회
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setSimilar([]);
+
+    getSimilarColors(hex, excludeId, 5).then((res) => {
+      if (!cancelled && res.success && res.data) {
+        setSimilar(res.data);
+      }
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hex, excludeId]);
+
+  return (
+    <div className="mt-5">
+      <p className="text-[10px] font-extrabold tracking-widest uppercase text-gray-400 mb-3">
+        비슷한 팬톤 컬러
+      </p>
+
+      {/* 수평 스크롤 칩 리스트 */}
+      <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-5 px-5 scrollbar-hide">
+        {loading
+          ? // 스켈레톤 5개
+            Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-none flex flex-col items-center gap-1.5 animate-pulse"
+              >
+                <div className="w-11 h-11 rounded-2xl bg-gray-100" />
+                <div className="w-12 h-2 bg-gray-100 rounded" />
+              </div>
+            ))
+          : similar.map((color) => (
+              <button
+                key={color.id}
+                type="button"
+                onClick={() => open(color)}
+                title={`${color.name} · ${color.code}`}
+                className="flex-none flex flex-col items-center gap-1.5 group"
+              >
+                <div
+                  className="w-11 h-11 rounded-2xl shadow-sm transition-transform group-hover:scale-110 group-hover:-translate-y-0.5"
+                  style={{ backgroundColor: color.hex }}
+                />
+                <span className="text-[8px] font-bold text-gray-400 group-hover:text-gray-600 transition-colors text-center leading-tight w-12 truncate">
+                  {color.name}
+                </span>
+              </button>
+            ))}
+      </div>
     </div>
   );
 }
@@ -358,6 +431,9 @@ export default function ColorModal() {
                 ))}
               </div>
             </div>
+
+            {/* 유사 팬톤 컬러 */}
+            <SimilarColorsSection hex={color.hex} excludeId={color.id} />
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import type {
   CategoryListData,
   GetColorsParams,
 } from "@/types/color";
+import { getRgbDistance } from "@/utils/color";
 
 // ─── Server Actions ────────────────────────────────────────────────────────────
 
@@ -115,6 +116,45 @@ export async function getCategories(): Promise<ApiResponse<CategoryListData>> {
   ).sort();
 
   return successResponse<CategoryListData>(categories);
+}
+
+/**
+ * RGB 유클리드 거리 기준 유사 팬톤 컬러 조회
+ * - 전체 색상을 로드 후 거리 계산 및 정렬
+ * - excludeId: 현재 색상 자신 제외
+ * - limit: 반환할 최대 개수 (기본값 5)
+ */
+export async function getSimilarColors(
+  hex: string,
+  excludeId: string,
+  limit = 5
+): Promise<ApiResponse<ColorListData>> {
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[getSimilarColors]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
+
+  const { data, error } = await supabase
+    .from("pantone_colors")
+    .select("*")
+    .neq("id", excludeId);
+
+  if (error) {
+    return errorResponse("DB_ERROR", error.message);
+  }
+
+  // RGB 거리 계산 후 오름차순 정렬, 상위 limit 개 반환
+  const sorted = (data as ColorDto[])
+    .map((color) => ({ color, distance: getRgbDistance(hex, color.hex) }))
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, limit)
+    .map(({ color }) => color);
+
+  return successResponse<ColorListData>(sorted);
 }
 
 /**
