@@ -7,6 +7,49 @@ import type { ColorDto } from "@/types/color";
 
 const PAGE_SIZE = 12;
 
+// shimmer 그라디언트 공통 스타일
+const shimmerStyle = {
+  background: "linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)",
+  backgroundSize: "200% 100%",
+} as const;
+
+// ─── 스켈레톤 카드 ────────────────────────────────────────────────────────────
+
+function SkeletonCard({ index }: { index: number }) {
+  return (
+    <div
+      className="bg-white rounded-3xl overflow-hidden shadow-sm animate-card-in"
+      style={{ animationDelay: `${index * 55}ms` }}
+    >
+      {/* 스와치 영역 */}
+      <div className="h-52 animate-shimmer" style={shimmerStyle} />
+
+      {/* 정보 영역 */}
+      <div className="p-5 space-y-3">
+        <div
+          className="h-5 rounded-full w-3/4 animate-shimmer"
+          style={{ ...shimmerStyle, animationDelay: "80ms" }}
+        />
+        <div className="flex items-center justify-between mt-3">
+          <div
+            className="h-4 rounded-full w-24 animate-shimmer"
+            style={{ ...shimmerStyle, animationDelay: "160ms" }}
+          />
+          <div
+            className="h-6 rounded-full w-14 animate-shimmer"
+            style={{ ...shimmerStyle, animationDelay: "200ms" }}
+          />
+        </div>
+      </div>
+
+      {/* 하단 액센트 바 */}
+      <div className="h-1 animate-shimmer" style={shimmerStyle} />
+    </div>
+  );
+}
+
+// ─── 무한 스크롤 그리드 ───────────────────────────────────────────────────────
+
 type Props = {
   category: string;
   search: string;
@@ -20,9 +63,11 @@ export default function InfiniteScrollGrid({ category, search, year }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // 첫 페이지 초기 로드
+  // 필터 변경 시 초기 로드
   useEffect(() => {
     let cancelled = false;
+    // 이전 카드 초기화 → 스켈레톤 그리드 표시
+    setColors([]);
     setIsLoading(true);
     getColors({ category, search, year, page: 1, pageSize: PAGE_SIZE }).then(
       (res) => {
@@ -71,6 +116,18 @@ export default function InfiniteScrollGrid({ category, search, year }: Props) {
     return () => observer.disconnect();
   }, [loadMore]);
 
+  // 초기 로딩: 스켈레톤 그리드 전체 표시
+  if (isLoading && colors.length === 0) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+          <SkeletonCard key={i} index={i} />
+        ))}
+      </div>
+    );
+  }
+
+  // 결과 없음
   if (!isLoading && colors.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-gray-400">
@@ -96,43 +153,27 @@ export default function InfiniteScrollGrid({ category, search, year }: Props) {
 
   return (
     <div>
+      {/* 카드 그리드 — 각 카드 스태거 애니메이션 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {colors.map((color) => (
-          <ColorCard key={color.id} color={color} />
+        {colors.map((color, index) => (
+          <div
+            key={color.id}
+            className="animate-card-in"
+            style={{ animationDelay: `${(index % PAGE_SIZE) * 55}ms` }}
+          >
+            <ColorCard color={color} />
+          </div>
         ))}
       </div>
 
       {/* IntersectionObserver 감지용 센티넬 */}
       <div ref={sentinelRef} className="h-4" />
 
-      {/* 로딩 스피너 */}
-      {isLoading && (
-        <div className="flex justify-center py-10 gap-2">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-3 h-3 rounded-full bg-gray-300 animate-bounce"
-              style={{ animationDelay: `${i * 150}ms` }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* 스켈레톤 카드 (로딩 중 미리보기) */}
-      {isLoading && (
+      {/* 무한 스크롤 추가 로딩: 하단 스켈레톤 */}
+      {isLoading && colors.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm animate-pulse"
-            >
-              <div className="h-52 bg-gray-100" />
-              <div className="p-5 space-y-3">
-                <div className="h-5 bg-gray-100 rounded-full w-3/4" />
-                <div className="h-4 bg-gray-100 rounded-full w-1/2" />
-              </div>
-              <div className="h-1 bg-gray-100" />
-            </div>
+            <SkeletonCard key={i} index={i} />
           ))}
         </div>
       )}
