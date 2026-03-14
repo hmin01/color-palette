@@ -22,7 +22,14 @@ export async function getColors(
 ): Promise<ApiResponse<ColorListData>> {
   const { category, page = 1, pageSize = 12, search, year } = params;
 
-  const supabase = createServerClient();
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[getColors]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
   let query = supabase
     .from("pantone_colors")
     .select("*", { count: "exact" });
@@ -62,7 +69,14 @@ export async function getColors(
 export async function getColorById(
   id: string
 ): Promise<ApiResponse<ColorDetailData>> {
-  const supabase = createServerClient();
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[getColorById]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("*")
@@ -80,7 +94,14 @@ export async function getColorById(
  * 사용 가능한 카테고리 목록 조회
  */
 export async function getCategories(): Promise<ApiResponse<CategoryListData>> {
-  const supabase = createServerClient();
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[getCategories]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("category");
@@ -100,7 +121,14 @@ export async function getCategories(): Promise<ApiResponse<CategoryListData>> {
  * 올해의 컬러(COTYE) 목록 조회 (연도 내림차순)
  */
 export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> {
-  const supabase = createServerClient();
+  let supabase: ReturnType<typeof createServerClient>;
+  try {
+    supabase = createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error("[getColorsOfTheYear]", msg);
+    return errorResponse("CONFIG_ERROR", msg);
+  }
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("*")
