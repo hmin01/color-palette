@@ -1,19 +1,9 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getColorsOfTheYear } from "@/app/actions/colorActions";
 
-export default function Header() {
-  const [previewHexes, setPreviewHexes] = useState<string[]>([]);
-
-  useEffect(() => {
-    getColorsOfTheYear().then((res) => {
-      if (res.success && res.data) {
-        setPreviewHexes(res.data.slice(0, 8).map((c) => c.hex));
-      }
-    });
-  }, []);
+export default async function Header() {
+  const colors = await getColorsOfTheYear();
+  const previewHexes = colors.slice(0, 8).map((c) => c.hex);
 
 
   return (

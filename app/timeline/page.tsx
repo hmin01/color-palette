@@ -1,7 +1,6 @@
 import { getColorsOfTheYear } from "@/app/actions/colorActions";
 import TimelineClient from "@/components/timeline/TimelineClient";
 import type { Metadata } from "next";
-import type { ColorDto } from "@/types/color";
 
 // ISR: 하루 1회 재생성
 export const revalidate = 86400;
@@ -12,13 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TimelinePage() {
-  const res = await getColorsOfTheYear();
-
-  // 연도 내림차순 정렬 (최신 연도가 첫 번째)
-  const colors: ColorDto[] =
-    res.success && res.data
-      ? [...res.data].sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
-      : [];
+  const colors = await getColorsOfTheYear();
 
   return <TimelineClient colors={colors} />;
 }

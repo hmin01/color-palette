@@ -12,6 +12,23 @@ import type {
 } from "@/types/color";
 import { getRgbDistance } from "@/utils/color";
 
+// ─── 내부 헬퍼 ────────────────────────────────────────────────────────────────
+
+/**
+ * Supabase 클라이언트 초기화 헬퍼
+ * - 초기화 실패 시 console.error 후 null 반환
+ * - 각 action 함수는 null 여부를 확인 후 적절한 fallback 반환
+ */
+function initSupabase(label: string) {
+  try {
+    return createServerClient();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
+    console.error(`[${label}] 클라이언트 초기화 오류:`, msg);
+    return null;
+  }
+}
+
 // ─── Server Actions ────────────────────────────────────────────────────────────
 
 /**
@@ -23,14 +40,9 @@ export async function getColors(
 ): Promise<ApiResponse<ColorListData>> {
   const { category, page = 1, pageSize = 12, search, year } = params;
 
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[getColors]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+  const supabase = initSupabase("getColors");
+  if (!supabase) return errorResponse("CONFIG_ERROR", "Supabase 클라이언트 초기화 실패");
+
   let query = supabase
     .from("pantone_colors")
     .select("*", { count: "exact" });
@@ -70,14 +82,9 @@ export async function getColors(
 export async function getColorById(
   id: string
 ): Promise<ApiResponse<ColorDetailData>> {
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[getColorById]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+  const supabase = initSupabase("getColorById");
+  if (!supabase) return errorResponse("CONFIG_ERROR", "Supabase 클라이언트 초기화 실패");
+
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("*")
@@ -95,14 +102,9 @@ export async function getColorById(
  * 사용 가능한 카테고리 목록 조회
  */
 export async function getCategories(): Promise<ApiResponse<CategoryListData>> {
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[getCategories]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+  const supabase = initSupabase("getCategories");
+  if (!supabase) return errorResponse("CONFIG_ERROR", "Supabase 클라이언트 초기화 실패");
+
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("category");
@@ -129,14 +131,8 @@ export async function getSimilarColors(
   excludeId: string,
   limit = 5
 ): Promise<ApiResponse<ColorListData>> {
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[getSimilarColors]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+  const supabase = initSupabase("getSimilarColors");
+  if (!supabase) return errorResponse("CONFIG_ERROR", "Supabase 클라이언트 초기화 실패");
 
   const { data, error } = await supabase
     .from("pantone_colors")
@@ -160,15 +156,10 @@ export async function getSimilarColors(
 /**
  * 올해의 컬러(COTYE) 목록 조회 (연도 내림차순)
  */
-export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> {
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[getColorsOfTheYear]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+export async function getColorsOfTheYear(): Promise<ColorDto[]> {
+  const supabase = initSupabase("getColorsOfTheYear");
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from("pantone_colors")
     .select("*")
@@ -176,10 +167,11 @@ export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> 
     .order("year", { ascending: false });
 
   if (error) {
-    return errorResponse("DB_ERROR", error.message);
+    console.error("[getColorsOfTheYear] DB 조회 오류:", error.message);
+    return [];
   }
 
-  return successResponse<ColorListData>(data as ColorDto[]);
+  return data as ColorDto[];
 }
 
 /**
@@ -189,14 +181,8 @@ export async function getColorsOfTheYear(): Promise<ApiResponse<ColorListData>> 
 export async function findClosestColor(
   hex: string
 ): Promise<ApiResponse<ColorDetailData>> {
-  let supabase: ReturnType<typeof createServerClient>;
-  try {
-    supabase = createServerClient();
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Supabase 클라이언트 초기화 실패";
-    console.error("[findClosestColor]", msg);
-    return errorResponse("CONFIG_ERROR", msg);
-  }
+  const supabase = initSupabase("findClosestColor");
+  if (!supabase) return errorResponse("CONFIG_ERROR", "Supabase 클라이언트 초기화 실패");
 
   const { data, error } = await supabase
     .from("pantone_colors")
