@@ -169,6 +169,85 @@ export function getRgbDistance(hex1: string, hex2: string): number {
 }
 
 /**
+ * HSL 값을 헥스 색상으로 변환합니다.
+ * h: 0-360, s: 0-100, l: 0-100
+ */
+export function hslToHex(h: number, s: number, l: number): string {
+  const hNorm = h / 360;
+  const sNorm = s / 100;
+  const lNorm = l / 100;
+
+  if (sNorm === 0) {
+    const val = Math.round(lNorm * 255);
+    return rgbToHex(val, val, val);
+  }
+
+  const hue2rgb = (p: number, q: number, t: number): number => {
+    let tt = t;
+    if (tt < 0) tt += 1;
+    if (tt > 1) tt -= 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+
+  const q =
+    lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm;
+  const p = 2 * lNorm - q;
+
+  return rgbToHex(
+    Math.round(hue2rgb(p, q, hNorm + 1 / 3) * 255),
+    Math.round(hue2rgb(p, q, hNorm) * 255),
+    Math.round(hue2rgb(p, q, hNorm - 1 / 3) * 255)
+  );
+}
+
+/**
+ * 베이스 색상을 검정과 혼합하여 어두운 Shades 배열을 생성합니다.
+ * 인덱스 0 = 원본 색상, steps-1 = 가장 어두운 색상 (90% 혼합)
+ */
+export function generateShades(hex: string, steps = 10): string[] {
+  const { r, g, b } = hexToRgbObject(hex);
+  return Array.from({ length: steps }, (_, i) => {
+    const factor = (i / (steps - 1)) * 0.9;
+    return rgbToHex(
+      Math.round(r * (1 - factor)),
+      Math.round(g * (1 - factor)),
+      Math.round(b * (1 - factor))
+    );
+  });
+}
+
+/**
+ * 베이스 색상을 흰색과 혼합하여 밝은 Tints 배열을 생성합니다.
+ * 인덱스 0 = 원본 색상, steps-1 = 가장 밝은 색상 (흰색에 가까운)
+ */
+export function generateTints(hex: string, steps = 10): string[] {
+  const { r, g, b } = hexToRgbObject(hex);
+  return Array.from({ length: steps }, (_, i) => {
+    const factor = (i / (steps - 1)) * 0.9;
+    return rgbToHex(
+      Math.round(r + (255 - r) * factor),
+      Math.round(g + (255 - g) * factor),
+      Math.round(b + (255 - b) * factor)
+    );
+  });
+}
+
+/**
+ * HSL의 채도(S)를 0~100%로 변화시킨 Saturation 배열을 생성합니다.
+ * 인덱스 0 = 채도 0% (무채색), steps-1 = 채도 100% (최대 채도)
+ */
+export function generateSaturations(hex: string, steps = 10): string[] {
+  const { h, l } = hexToHsl(hex);
+  return Array.from({ length: steps }, (_, i) => {
+    const s = (i / (steps - 1)) * 100;
+    return hslToHex(h, s, l);
+  });
+}
+
+/**
  * 헥스 색상을 HSB(HSV) 객체로 변환합니다.
  */
 export function hexToHsb(hex: string): { h: number; s: number; b: number } {
