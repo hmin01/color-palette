@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 export default async function TimelinePage() {
   const res = await getColorsOfTheYear();
 
-  // 연도 오름차순 정렬
+  // 연도 내림차순 정렬 (최신 연도가 첫 번째)
   const colors: ColorDto[] =
     res.success && res.data
-      ? [...res.data].sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+      ? [...res.data].sort((a, b) => (b.year ?? 0) - (a.year ?? 0))
       : [];
 
   return <TimelineClient colors={colors} />;
