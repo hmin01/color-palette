@@ -152,15 +152,6 @@ export default function TimelineClient({ colors }: TimelineClientProps) {
           }}
         />
 
-        {/* 수직 연결선 — padding(32) + year(64) + gap(24) + dot중심(5) = 125px */}
-        <div
-          className="absolute top-0 bottom-0 w-px pointer-events-none z-0"
-          style={{
-            left: 125,
-            backgroundColor: isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)",
-          }}
-        />
-
         {/* 슬라이딩 목록 */}
         <div
           className="absolute left-0 right-0"
@@ -169,6 +160,16 @@ export default function TimelineClient({ colors }: TimelineClientProps) {
             transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
+          {/* 가운데 정렬 컨테이너 — 수직 연결선 포함 */}
+          <div className="max-w-2xl mx-auto relative">
+            {/* 수직 연결선 — padding(32) + year(64) + gap(24) + dot중심(5) = 125px */}
+            <div
+              className="absolute top-0 bottom-0 w-px pointer-events-none z-0"
+              style={{
+                left: 125,
+                backgroundColor: isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)",
+              }}
+            />
           {colors.map((color, index) => {
             const isActive = index === activeIndex;
             const distance = Math.abs(index - activeIndex);
@@ -260,6 +261,7 @@ export default function TimelineClient({ colors }: TimelineClientProps) {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
 
